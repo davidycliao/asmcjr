@@ -787,8 +787,15 @@ double sliceX(double theta[], double thetaLeft[], double thetaRight[], int param
 double runif(void);
 
 
-double runif(void){
-	return(rand() / ((double)RAND_MAX + 1));
+// double runif(void){
+// 	return(rand() / ((double)RAND_MAX + 1));
+// }
+
+double runif(void) {
+  GetRNGstate();         // Initialize R's RNG state
+  double result = unif_rand(); // Generate a uniform random number using R's RNG
+  PutRNGstate();         // Save the RNG state for R to continue properly
+  return result;
 }
 
 void copyFromR(int *nz, int *ny, int *na, int *nb, int *nc, int *nd, int *ne, int *nf, int *ng, double *XX, double *XCONSTRAINTS, double *YCONSTRAINTS) {
@@ -3196,9 +3203,18 @@ void xsvdrotate(int kpnp, int kpnq, double XTRUE3[], double theta2[], double rma
 		ydummy[i]=XprimeX[i];
 	}
 //
-	dgesvd_("A","A", &kpnq, &kpnq, XprimeX, &lda, lambda,
-		  u, &ldu, vt, &ldvt, work, &lwork, &info);
+// double* rwork;
+// int* iwork;
 
+int* rwork;
+unsigned long int iwork;
+
+dgesvd_("A","A", &kpnq, &kpnq, XprimeX, &lda, lambda,
+        u, &ldu, vt, &ldvt, work, &lwork, rwork, iwork, info);
+
+// dgesvd_("A","A", &kpnq, &kpnq, XprimeX, &lda, lambda,
+//           u, &ldu, vt, &ldvt, work, &lwork, rwork, iwork, &info);
+          
 //	jp = fopen("heck2.txt","a");
 //	fprintf(jp,"Info = %i\n",info);
 //	fprintf(jp,"Singular Values\n");
